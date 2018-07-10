@@ -8,7 +8,6 @@ class OneCoderTest extends Specification {
 
     def "should correctly encode complex object"() {
         given:
-        mapper
         def m = [
                 "bool"    : true,
                 "floating": 1.37f,
@@ -32,7 +31,6 @@ class OneCoderTest extends Specification {
 
     def "should handle utf-8"() {
         given:
-        mapper
         def m = [
                 "ascii",
                 "øutf-8ø",
@@ -50,7 +48,6 @@ class OneCoderTest extends Specification {
 
     def "should sort keys alphabetically"() {
         given:
-        mapper
         def m = [
                 "c": 3,
                 "b": 2,
