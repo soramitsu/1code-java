@@ -26,7 +26,8 @@ jacocoTestReport {
         xml.enabled true
         xml.destination file("${buildDir}/reports/coverage.xml")
         csv.enabled false
-        html.enabled false
+        html.enabled true
+        html.destination file("${buildDir}/reports/html")
     }
 
     dependsOn(test)
@@ -47,10 +48,8 @@ def jacksonVersion = '2.9.6'
 def lombokVersion = '1.18.0'
 def jacksonDatatypeVersion = '2.9.6'
 def spockVersion = '1.1-groovy-2.4'
-def junitVersion = '4.12'
 
 dependencies {
-    testCompile("junit:junit:${junitVersion}")
     testCompile("org.spockframework:spock-core:${spockVersion}")
 
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")

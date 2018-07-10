@@ -1,32 +1,42 @@
 package jp.co.soramitsu.jackson
 
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
 import spock.lang.Specification;
 
 class OneCoderTest extends Specification {
 
     def mapper = new OneCodeMapper()
 
+    def complex = [
+            "char"    : new Character('a' as char),
+            "long"    : 28l,
+            "chararr" : ['a', 'b', 'c'] as char[],
+            "BigInt"  : new BigInteger("1337"),
+            "BigDec"  : new BigDecimal("2.01"),
+            "bool"    : true,
+            "floating": 1.37f,
+            "double"  : 0.99d,
+            "string"  : "hello!" as String,
+            "list"    : [1, 2, "zzx"],
+            "map"     : [
+                    "a"      : "b",
+                    "c"      : false,
+                    "null"   : "notnull",
+                    "nullval": null
+            ]
+    ]
+
+    def complexEncoded = "d6:BigDeci2.01e6:BigInti1337e4:boolT4:char1:a7:chararr3:abc6:doublei0.99e8:floatingi1.37e4:listli1ei2e3:zzxe4:longi28e3:mapd1:a1:b1:cF4:null7:notnulle6:string6:hello!e"
+
     def "should correctly encode complex object"() {
         given:
-        def m = [
-                "bool"    : true,
-                "floating": 1.37f,
-                "double"  : 0.99d,
-                "string"  : "hello!",
-                "list"    : [1, 2, "zzx"],
-                "map"     : [
-                        "a"      : "b",
-                        "c"      : false,
-                        "null"   : "notnull",
-                        "nullval": null
-                ]
-        ]
+        complex
 
         when:
-        def enc = mapper.writeValueAsString(m)
+        def enc = mapper.writeValueAsString(complex)
 
         then:
-        enc == "d4:boolT6:doublei0.99e8:floatingi1.37e4:listli1ei2e3:zzxe3:mapd1:a1:b1:cF4:null7:notnulle6:string6:hello!e"
+        enc == complexEncoded
     }
 
     def "should handle utf-8"() {
@@ -59,5 +69,28 @@ class OneCoderTest extends Specification {
 
         then:
         enc == "d1:ai1e1:bi2e1:ci3ee"
+    }
+
+    def "should write to Writer"() {
+        given:
+        def writer = new StringWriter(100)
+
+        when:
+        mapper.writeValue(writer, complex)
+
+        then:
+        writer.toString() == complexEncoded
+    }
+
+    def "should write to a File"() {
+        given:
+        def file = File.createTempFile("1code", ".json")
+
+        when:
+        mapper.writeValue(file, complex)
+
+        then:
+        file.exists()
+        file.newReader("utf-8").readLine() == complexEncoded
     }
 }

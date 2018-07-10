@@ -151,7 +151,7 @@ class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeRaw(char c) throws IOException {
-    write(c);
+    write("" + c);
   }
 
   @Override
@@ -193,7 +193,7 @@ class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeNumber(BigInteger v) throws IOException {
-    write(String.valueOf(v));
+    write(v);
   }
 
   @Override
@@ -208,7 +208,7 @@ class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeNumber(BigDecimal v) throws IOException {
-    write(String.valueOf(v).replace(',', '.'));
+    write(v);
   }
 
   @Override
@@ -223,7 +223,7 @@ class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeNull() throws IOException {
-    /* ignore null values */
+    throw new UnsupportedOperationException("writing Null");
   }
 
   @Override
@@ -249,7 +249,12 @@ class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public boolean isClosed() {
-    return false;
+    try {
+      writer.flush();
+      return false;
+    } catch (IOException e) {
+      return true;
+    }
   }
 
   @Override
@@ -263,21 +268,17 @@ class OneCodeGenerator extends JsonGenerator {
     writer.write('e');
   }
 
-  private void write(final char chr) throws IOException {
-    writer.write('1');
-    writer.write(':');
-    writer.write(chr);
-  }
-
   private void write(final String s) throws IOException {
     write(s.getBytes(charset));
   }
 
+  // same as string
   private void write(final char[] c) throws IOException {
     byte[] bytes = charset.encode(CharBuffer.wrap(c)).array();
     write(bytes);
   }
 
+  // same as string
   private void write(final byte[] b) throws IOException {
     writer.write(String.valueOf(b.length));
     writer.write(':');

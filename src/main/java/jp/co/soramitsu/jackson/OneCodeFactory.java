@@ -5,8 +5,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -22,18 +24,20 @@ class OneCodeFactory extends JsonFactory {
 
   @Override
   public OneCodeGenerator createGenerator(OutputStream out) {
-    throw new UnsupportedOperationException("unsupported createGenerator(OutputStream)");
+    Writer w = new OutputStreamWriter(out, DEFAULT_CHARSET);
+    return new OneCodeGenerator(w, DEFAULT_CHARSET);
   }
 
   @Override
-  public OneCodeGenerator createGenerator(File f, JsonEncoding enc) throws FileNotFoundException {
-    throw new UnsupportedOperationException("unsupported createGenerator(file)");
+  public OneCodeGenerator createGenerator(File f, JsonEncoding enc)
+      throws IOException {
+    FileWriter w = new FileWriter(f);
+    return new OneCodeGenerator(w, DEFAULT_CHARSET);
   }
 
   @Override
   public OneCodeGenerator createGenerator(OutputStream out, JsonEncoding enc) {
-    Writer w = new OutputStreamWriter(out, DEFAULT_CHARSET);
-    return new OneCodeGenerator(w, DEFAULT_CHARSET);
+    return createGenerator(out);
   }
 
   @Override
@@ -45,6 +49,4 @@ class OneCodeFactory extends JsonFactory {
   public OneCodeGenerator createGenerator(DataOutput out) {
     throw new UnsupportedOperationException("can not create generator from DataOutput");
   }
-
-
 }
