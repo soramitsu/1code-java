@@ -15,7 +15,8 @@ import java.math.BigInteger;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import javax.validation.constraints.NotNull;
+import lombok.NonNull;
+
 
 class OneCodeGenerator extends JsonGenerator {
 
@@ -23,7 +24,7 @@ class OneCodeGenerator extends JsonGenerator {
   private ObjectCodec codec;
   private Charset charset;
 
-  public OneCodeGenerator(@NotNull Writer w, @NotNull Charset charset) {
+  public OneCodeGenerator(@NonNull Writer w, @NonNull Charset charset) {
     this.writer = w;
     this.charset = charset;
   }
@@ -47,7 +48,6 @@ class OneCodeGenerator extends JsonGenerator {
   @Override
   public JsonGenerator enable(Feature f) {
     throw new UnsupportedOperationException("can not enable feature f: " + f.toString());
-
   }
 
   @Override
@@ -64,14 +64,12 @@ class OneCodeGenerator extends JsonGenerator {
   @Override
   public int getFeatureMask() {
     throw new UnsupportedOperationException("can not execute getFeatureMask()");
-
   }
 
   @Override
   public JsonGenerator setFeatureMask(int values) {
     throw new UnsupportedOperationException(
         "can not execute setFeatureMask(" + values + ")");
-
   }
 
   @Override

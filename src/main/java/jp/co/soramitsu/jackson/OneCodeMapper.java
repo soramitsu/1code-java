@@ -9,12 +9,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class OneCodeMapper extends ObjectMapper {
 
   public OneCodeMapper() {
-    this(new BencodeFactory());
+    this(new OneCodeFactory());
   }
 
-  public OneCodeMapper(BencodeFactory bencodeFactory) {
-    super(bencodeFactory);
+  public OneCodeMapper(OneCodeFactory oneCodeFactory) {
+    super(oneCodeFactory);
 
+    // to
     registerModule(new JavaTimeModule());
 
     // all keys must be sorted alphabetically
