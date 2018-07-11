@@ -1,7 +1,6 @@
 package jp.co.soramitsu.jackson
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
-import spock.lang.Specification;
+import spock.lang.Specification
 
 class OneCoderTest extends Specification {
 
