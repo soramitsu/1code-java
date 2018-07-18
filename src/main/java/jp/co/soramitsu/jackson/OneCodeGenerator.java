@@ -18,7 +18,7 @@ import java.util.Arrays;
 import lombok.NonNull;
 
 
-class OneCodeGenerator extends JsonGenerator {
+public class OneCodeGenerator extends JsonGenerator {
 
   private Writer writer;
   private ObjectCodec codec;

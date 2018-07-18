@@ -13,7 +13,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
-class OneCodeFactory extends JsonFactory {
+public class OneCodeFactory extends JsonFactory {
 
   public static final Charset DEFAULT_CHARSET = UTF_8;
 
