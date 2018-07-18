@@ -1,5 +1,6 @@
 package jp.co.soramitsu.jackson
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import spock.lang.Specification
 
 class OneCoderTest extends Specification {
@@ -91,5 +92,23 @@ class OneCoderTest extends Specification {
         then:
         file.exists()
         file.newReader("utf-8").readLine() == complexEncoded
+    }
+
+    def "should work for complex json with no exceptions"(){
+        given:
+        def root = jsonMapper.readTree(json)
+
+        when:
+        String val = mapper.writeValueAsString(root)
+
+        then:
+        root != null
+        noExceptionThrown()
+        val == expected
+
+        where:
+        jsonMapper = new ObjectMapper()
+        json = this.getClass().getResourceAsStream("/json/initial.json")
+        expected = "d1:ai1e1:b6:string1:cli3ei2ei1ee1:dd1:1i1e1:2ld1:zi1eeee1:e36:complex_key/value with? empty objectde11:empty arrayle28:empty array of empty objectsldededeee"
     }
 }

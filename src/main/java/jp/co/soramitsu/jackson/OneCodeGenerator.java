@@ -47,12 +47,14 @@ class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public JsonGenerator enable(Feature f) {
-    throw new UnsupportedOperationException("can not enable feature f: " + f.toString());
+    /* just ignore features */
+    return this;
   }
 
   @Override
   public JsonGenerator disable(Feature f) {
-    throw new UnsupportedOperationException("can not disable feature f: " + f.toString());
+    /* just ignore features */
+    return this;
   }
 
   @Override
@@ -222,8 +224,8 @@ class OneCodeGenerator extends JsonGenerator {
   }
 
   @Override
-  public void writeNull() throws IOException {
-    throw new UnsupportedOperationException("writing Null");
+  public void writeNull() {
+    /* ignore null */
   }
 
   @Override

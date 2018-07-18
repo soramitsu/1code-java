@@ -1,0 +1,15 @@
+{
+  "a": 1,
+  "b": "string",
+  "c": [3, 2, 1],
+  "d": {
+    "1": 1,
+    "2": [{
+      "z": 1
+    }]
+  },
+  "e": null,
+  "complex_key/value with? empty object": {},
+  "empty array": [],
+  "empty array of empty objects": [{}, {}, {}]
+}
