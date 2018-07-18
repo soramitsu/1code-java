@@ -54,6 +54,5 @@ dependencies {
 
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("org.projectlombok:lombok:${lombokVersion}")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeVersion}")
 
 }
