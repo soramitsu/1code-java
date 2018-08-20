@@ -1,9 +1,8 @@
-
-
 plugins {
     id 'java'
     id 'groovy'
     id 'jacoco'
+    id "org.sonarqube" version "2.6"
 }
 
 group 'jp.co.soramitsu'
