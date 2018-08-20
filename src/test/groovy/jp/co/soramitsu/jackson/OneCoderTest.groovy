@@ -1,7 +1,11 @@
 package jp.co.soramitsu.jackson
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import spock.lang.Specification
+
+import java.time.Instant
+import java.time.LocalDateTime
 
 class OneCoderTest extends Specification {
 
@@ -94,7 +98,7 @@ class OneCoderTest extends Specification {
         file.newReader("utf-8").readLine() == complexEncoded
     }
 
-    def "should work for complex json with no exceptions"(){
+    def "should work for complex json with no exceptions"() {
         given:
         def root = jsonMapper.readTree(json)
 
@@ -110,5 +114,52 @@ class OneCoderTest extends Specification {
         jsonMapper = new ObjectMapper()
         json = this.getClass().getResourceAsStream("/json/initial.json")
         expected = "d1:ai1e1:b6:string1:cli3ei2ei1ee1:dd1:1i1e1:2ld1:zi1eeee1:e36:complex_key/value with? empty objectde11:empty arrayle28:empty array of empty objectsldededeee"
+    }
+
+    def "should not include nulls"() {
+        given:
+        def json = '''
+                {
+                    "a": {},
+                    "b": [],
+                    "c": "",
+                    "d": 0
+                }
+        '''
+
+        def obj = [
+                "a": [:],
+                "b": [],
+                "c": "",
+                "d": 0
+        ]
+
+        def jsonMapper = new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        def tree = jsonMapper.readTree(json)
+
+
+        when:
+        def a1 = jsonMapper.writeValueAsString(tree)
+        def a2 = jsonMapper.writeValueAsString(obj)
+
+        then:
+        a1 == a2
+    }
+
+    def "can process dates"(){
+        given:
+        def obj = [
+                "date": new Date(123),
+                "instant": Instant.ofEpochMilli(123)
+        ]
+
+        def mapper = new OneCodeMapper()
+
+        when:
+        def a = mapper.valueToTree(obj).toString()
+
+        then:
+        a == '{"date":"1970-01-01T00:00:00.123+0000","instant":"1970-01-01T00:00:00.123Z"}'
     }
 }
