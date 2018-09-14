@@ -1,3 +1,4 @@
+# Version 2.0.0
 # Specification for `1code` - binary encoding format of arbitrary complex data structures
 
 1code is an extention of [`bencode`](https://en.wikipedia.org/wiki/Bencode), which adds string encoding, floating point numbers, booleans and other types, that are missing in `bencode`.
@@ -59,8 +60,6 @@ A list of values is encoded as `l<contents>e` . The contents consist of the 1cod
 
 A dictionary is encoded as `d<contents>e`. The elements of the dictionary are 1coded each key immediately followed by its value. All keys must be byte strings and must appear in **lexicographical order**.
 
-Keys with value `null` are ignored.
-
 Example:
 ```
 {
@@ -79,7 +78,7 @@ Example:
 1coded dictionary:
 
 ```
-d4:boolT4:dictd1:ai9e1:ci10ee4:nullli1ei2ei3ee3:numi100500e3:str6:stringe
+d4:boolT4:dictd1:ai9e1:ci10ee4:nullli1ei2ei3ee8:nullableN3:numi100500e3:str6:stringe
 ```
 
 Or, pretty printed:
@@ -93,7 +92,18 @@ d
   4:null l
     i1e i2e i3e
   e
+  8:nullable N
   3:num i100500e
   3:str 6:string
 e
 ```
+
+## null
+
+Each `null` value is replaced by `N`.
+
+| value          | 1coded boolean |
+|----------------|----------------|
+| null           | N              |
+| [1, null, 2]   | li1eNi2ee      |
+| {"a":null}     | d1:aNe         |

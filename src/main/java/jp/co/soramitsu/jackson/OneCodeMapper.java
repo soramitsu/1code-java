@@ -6,13 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+
+/**
+ * @deprecated because it can not writeJsonNode MAP objects properly. Fields will not be sorted even
+ * if Jackon is told to do so.
+ */
+@Deprecated // since 2.0
 public class OneCodeMapper extends ObjectMapper {
 
   public OneCodeMapper() {
     this(new OneCodeFactory());
   }
 
-  public OneCodeMapper(OneCodeFactory oneCodeFactory) {
+  protected OneCodeMapper(OneCodeFactory oneCodeFactory) {
     super(oneCodeFactory);
 
     registerModule(new JavaTimeModule());
