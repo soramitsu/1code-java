@@ -1,5 +1,10 @@
 package jp.co.soramitsu.jackson;
 
+import static jp.co.soramitsu.jackson.Token.ARRAY_END;
+import static jp.co.soramitsu.jackson.Token.ARRAY_START;
+import static jp.co.soramitsu.jackson.Token.OBJECT_END;
+import static jp.co.soramitsu.jackson.Token.OBJECT_START;
+
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonStreamContext;
@@ -9,25 +14,17 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.Version;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.util.Arrays;
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-
+@Deprecated // since 2.0
+@RequiredArgsConstructor
 public class OneCodeGenerator extends JsonGenerator {
 
-  private Writer writer;
+  private final OneCoder cdr;
   private ObjectCodec codec;
-  private Charset charset;
-
-  public OneCodeGenerator(@NonNull Writer w, @NonNull Charset charset) {
-    this.writer = w;
-    this.charset = charset;
-  }
 
   @Override
   public JsonGenerator setCodec(ObjectCodec oc) {
@@ -81,22 +78,22 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeStartArray() throws IOException {
-    writer.write('l');
+    cdr.write(ARRAY_START);
   }
 
   @Override
   public void writeEndArray() throws IOException {
-    writer.write('e');
+    cdr.write(ARRAY_END);
   }
 
   @Override
   public void writeStartObject() throws IOException {
-    writer.write('d');
+    cdr.write(OBJECT_START);
   }
 
   @Override
   public void writeEndObject() throws IOException {
-    writer.write('e');
+    cdr.write(OBJECT_END);
   }
 
   @Override
@@ -106,12 +103,12 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeFieldName(SerializableString name) throws IOException {
-    write(name.getValue());
+    cdr.writeString(name.getValue());
   }
 
   @Override
   public void writeString(String text) throws IOException {
-    write(text);
+    cdr.writeString(text);
   }
 
   @Override
@@ -121,24 +118,24 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeString(SerializableString text) throws IOException {
-    write(text.getValue());
+    cdr.writeString(text.getValue());
   }
 
   @Override
   public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException {
     byte[] substring = Arrays.copyOfRange(text, offset, length);
-    write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
   public void writeUTF8String(byte[] text, int offset, int length) throws IOException {
     byte[] substring = Arrays.copyOfRange(text, offset, length);
-    write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
   public void writeRaw(String text) throws IOException {
-    write(text);
+    cdr.writeString(text);
   }
 
   @Override
@@ -153,24 +150,25 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeRaw(char c) throws IOException {
-    write("" + c);
+    // write single char as string
+    cdr.writeString("" + c);
   }
 
   @Override
   public void writeRawValue(String text) throws IOException {
-    write(text);
+    cdr.writeString(text);
   }
 
   @Override
   public void writeRawValue(String text, int offset, int len) throws IOException {
     String substring = text.substring(offset, len);
-    write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
   public void writeRawValue(char[] text, int offset, int len) throws IOException {
     char[] substring = Arrays.copyOfRange(text, offset, len);
-    write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
@@ -185,47 +183,47 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeNumber(int v) throws IOException {
-    write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(long v) throws IOException {
-    write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(BigInteger v) throws IOException {
-    write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(double v) throws IOException {
-    write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(float v) throws IOException {
-    write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(BigDecimal v) throws IOException {
-    write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(String encodedValue) throws IOException {
-    write(encodedValue);
+    cdr.writeString(encodedValue);
   }
 
   @Override
   public void writeBoolean(boolean state) throws IOException {
-    writer.write(state ? 'T' : 'F');
+    cdr.writeBoolean(state);
   }
 
   @Override
-  public void writeNull() {
-    /* ignore null */
+  public void writeNull() throws IOException {
+    cdr.writeNull();
   }
 
   @Override
@@ -246,44 +244,16 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void flush() throws IOException {
-    writer.flush();
+    cdr.flush();
   }
 
   @Override
   public boolean isClosed() {
-    try {
-      writer.flush();
-      return false;
-    } catch (IOException e) {
-      return true;
-    }
+    return cdr.isClosed();
   }
 
   @Override
   public void close() throws IOException {
-    writer.close();
-  }
-
-  private void write(final Number number) throws IOException {
-    writer.write('i');
-    writer.write(String.valueOf(number));
-    writer.write('e');
-  }
-
-  private void write(final String s) throws IOException {
-    write(s.getBytes(charset));
-  }
-
-  // same as string
-  private void write(final char[] c) throws IOException {
-    byte[] bytes = charset.encode(CharBuffer.wrap(c)).array();
-    write(bytes);
-  }
-
-  // same as string
-  private void write(final byte[] b) throws IOException {
-    writer.write(String.valueOf(b.length));
-    writer.write(':');
-    writer.write(new String(b, charset));
+    cdr.close();
   }
 }

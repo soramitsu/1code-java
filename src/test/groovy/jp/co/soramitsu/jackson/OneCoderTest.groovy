@@ -1,15 +1,9 @@
 package jp.co.soramitsu.jackson
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import spock.lang.Specification
 
-import java.time.Instant
-import java.time.LocalDateTime
-
 class OneCoderTest extends Specification {
-
-    def mapper = new OneCodeMapper()
 
     def complex = [
             "char"    : new Character('a' as char),
@@ -30,14 +24,18 @@ class OneCoderTest extends Specification {
             ]
     ]
 
-    def complexEncoded = "d6:BigDeci2.01e6:BigInti1337e4:boolT4:char1:a7:chararr3:abc6:doublei0.99e8:floatingi1.37e4:listli1ei2e3:zzxe4:longi28e3:mapd1:a1:b1:cF4:null7:notnulle6:string6:hello!e"
+    def complexEncoded = "d6:BigDeci2.01e6:BigInti1337e4:boolT4:char1:a7:chararr3:abc6:doublei0.99e8:floatingi1.37e4:listli1ei2e3:zzxe4:longi28e3:mapd1:a1:b1:cF4:null7:notnull7:nullvalNe6:string6:hello!e"
 
     def "should correctly encode complex object"() {
         given:
-        complex
+        def mapper = new ObjectMapper()
+        def json = mapper.writeValueAsString(complex)
+        def node = mapper.readTree(json)
+        def oneCoder = new OneCoder()
 
         when:
-        def enc = mapper.writeValueAsString(complex)
+        oneCoder.writeJsonNode(node)
+        def enc = oneCoder.toString()
 
         then:
         enc == complexEncoded
@@ -45,121 +43,86 @@ class OneCoderTest extends Specification {
 
     def "should handle utf-8"() {
         given:
+        def mapper = new ObjectMapper()
         def m = [
                 "ascii",
                 "øutf-8ø",
                 "こんにちは世界"
         ]
+        def json = mapper.writeValueAsString(m)
+        def node = mapper.readTree(json)
+        def oneCoder = new OneCoder()
 
         when:
-        String s = mapper.writeValueAsString(m)
-        byte[] b = mapper.writeValueAsBytes(m)
+        oneCoder.writeJsonNode(node)
+        def s = oneCoder.toString()
 
         then:
         s == "l5:ascii9:øutf-8ø21:こんにちは世界e"
-        b == [108, 53, 58, 97, 115, 99, 105, 105, 57, 58, -61, -72, 117, 116, 102, 45, 56, -61, -72, 50, 49, 58, -29, -127, -109, -29, -126, -109, -29, -127, -85, -29, -127, -95, -29, -127, -81, -28, -72, -106, -25, -107, -116, 101] as byte[]
     }
 
     def "should sort keys alphabetically"() {
         given:
+        def mapper = new ObjectMapper()
         def m = [
                 "c": 3,
                 "b": 2,
                 "a": 1
         ]
+        def json = mapper.writeValueAsString(m)
+        def node = mapper.readTree(json)
+        def oneCoder = new OneCoder()
 
         when:
-        def enc = mapper.writeValueAsString(m)
+        oneCoder.writeJsonNode(node)
+        def enc = oneCoder.toString()
 
         then:
         enc == "d1:ai1e1:bi2e1:ci3ee"
     }
 
-    def "should write to Writer"() {
+
+    def "fields are sorted"() {
         given:
-        def writer = new StringWriter(100)
+        def mapper = new ObjectMapper()
+        def oneCoder = new OneCoder()
+        def node = mapper.readTree(input)
 
         when:
-        mapper.writeValue(writer, complex)
+        oneCoder.writeJsonNode(node)
+        def onecoded = oneCoder.toString()
 
         then:
-        writer.toString() == complexEncoded
-    }
-
-    def "should write to a File"() {
-        given:
-        def file = File.createTempFile("1code", ".json")
-
-        when:
-        mapper.writeValue(file, complex)
-
-        then:
-        file.exists()
-        file.newReader("utf-8").readLine() == complexEncoded
-    }
-
-    def "should work for complex json with no exceptions"() {
-        given:
-        def root = jsonMapper.readTree(json)
-
-        when:
-        String val = mapper.writeValueAsString(root)
-
-        then:
-        root != null
-        noExceptionThrown()
-        val == expected
+        onecoded == expected
 
         where:
-        jsonMapper = new ObjectMapper()
-        json = this.getClass().getResourceAsStream("/json/initial.json")
-        expected = "d1:ai1e1:b6:string1:cli3ei2ei1ee1:dd1:1i1e1:2ld1:zi1eeee1:e36:complex_key/value with? empty objectde11:empty arrayle28:empty array of empty objectsldededeee"
+        input                                                                                                                                                                                                                                                                                                                                                       | expected
+        '{"id":"did:sora:username","created":"2018-09-14T10:07:30Z","publicKey":[{"id":"did:sora:username#keys-1","owner":"did:sora:username","publicKey":"b8bf218fe98e6b505b9ebdff5852d9db8df38d130ee914d531b06bb7be68efe4","type":"Ed25519Sha3VerificationKey"}],"authentication":[{"type":"Ed25519Sha3Authentication","publicKey":"did:sora:username#keys-1"}]}' | "d14:authenticationld9:publicKey24:did:sora:username#keys-14:type25:Ed25519Sha3Authenticationee7:created20:2018-09-14T10:07:30Z2:id17:did:sora:username9:publicKeyld2:id24:did:sora:username#keys-15:owner17:did:sora:username9:publicKey64:b8bf218fe98e6b505b9ebdff5852d9db8df38d130ee914d531b06bb7be68efe44:type26:Ed25519Sha3VerificationKeyeee"
+        '{"b": {"b":1, "a":0},"a": {"a":1, "b":0}}'                                                                                                                                                                                                                                                                                                                 | 'd1:ad1:ai1e1:bi0ee1:bd1:ai0e1:bi1eee'
     }
 
-    def "should not include nulls"() {
+    def "all types are handled correctly"() {
         given:
-        def json = '''
-                {
-                    "a": {},
-                    "b": [],
-                    "c": "",
-                    "d": 0
-                }
-        '''
-
-        def obj = [
-                "a": [:],
-                "b": [],
-                "c": "",
-                "d": 0
-        ]
-
-        def jsonMapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        def tree = jsonMapper.readTree(json)
-
+        def json = '{\n' +
+                '  "str": "string",\n' +
+                '  "num": 100500,\n' +
+                '  "bool": true,\n' +
+                '  "nullable": null,\n' +
+                '  "null": [1,2,3],\n' +
+                '  "dict": {\n' +
+                '    "a": 9,\n' +
+                '    "c": 10\n' +
+                '  }\n' +
+                '}'
+        def mapper = new ObjectMapper()
+        def oneCoder = new OneCoder()
 
         when:
-        def a1 = jsonMapper.writeValueAsString(tree)
-        def a2 = jsonMapper.writeValueAsString(obj)
+        def node = mapper.readTree(json)
+        oneCoder.writeJsonNode(node)
+        def onecoding = oneCoder.toString()
 
         then:
-        a1 == a2
-    }
-
-    def "can process dates"(){
-        given:
-        def obj = [
-                "date": new Date(123),
-                "instant": Instant.ofEpochMilli(123)
-        ]
-
-        def mapper = new OneCodeMapper()
-
-        when:
-        def a = mapper.valueToTree(obj).toString()
-
-        then:
-        a == '{"date":"1970-01-01T00:00:00.123+0000","instant":"1970-01-01T00:00:00.123Z"}'
+        onecoding == 'd4:boolT4:dictd1:ai9e1:ci10ee4:nullli1ei2ei3ee8:nullableN3:numi100500e3:str6:stringe'
     }
 }
