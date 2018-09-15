@@ -103,12 +103,12 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeFieldName(SerializableString name) throws IOException {
-    cdr.write(name.getValue());
+    cdr.writeString(name.getValue());
   }
 
   @Override
   public void writeString(String text) throws IOException {
-    cdr.write(text);
+    cdr.writeString(text);
   }
 
   @Override
@@ -118,24 +118,24 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeString(SerializableString text) throws IOException {
-    cdr.write(text.getValue());
+    cdr.writeString(text.getValue());
   }
 
   @Override
   public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException {
     byte[] substring = Arrays.copyOfRange(text, offset, length);
-    cdr.write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
   public void writeUTF8String(byte[] text, int offset, int length) throws IOException {
     byte[] substring = Arrays.copyOfRange(text, offset, length);
-    cdr.write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
   public void writeRaw(String text) throws IOException {
-    cdr.write(text);
+    cdr.writeString(text);
   }
 
   @Override
@@ -151,24 +151,24 @@ public class OneCodeGenerator extends JsonGenerator {
   @Override
   public void writeRaw(char c) throws IOException {
     // write single char as string
-    cdr.write("" + c);
+    cdr.writeString("" + c);
   }
 
   @Override
   public void writeRawValue(String text) throws IOException {
-    cdr.write(text);
+    cdr.writeString(text);
   }
 
   @Override
   public void writeRawValue(String text, int offset, int len) throws IOException {
     String substring = text.substring(offset, len);
-    cdr.write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
   public void writeRawValue(char[] text, int offset, int len) throws IOException {
     char[] substring = Arrays.copyOfRange(text, offset, len);
-    cdr.write(substring);
+    cdr.writeString(substring);
   }
 
   @Override
@@ -183,37 +183,37 @@ public class OneCodeGenerator extends JsonGenerator {
 
   @Override
   public void writeNumber(int v) throws IOException {
-    cdr.write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(long v) throws IOException {
-    cdr.write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(BigInteger v) throws IOException {
-    cdr.write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(double v) throws IOException {
-    cdr.write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(float v) throws IOException {
-    cdr.write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(BigDecimal v) throws IOException {
-    cdr.write(v);
+    cdr.writeNumber(v);
   }
 
   @Override
   public void writeNumber(String encodedValue) throws IOException {
-    cdr.write(encodedValue);
+    cdr.writeString(encodedValue);
   }
 
   @Override
@@ -222,8 +222,8 @@ public class OneCodeGenerator extends JsonGenerator {
   }
 
   @Override
-  public void writeNull() {
-    /* ignore null */
+  public void writeNull() throws IOException {
+    cdr.writeNull();
   }
 
   @Override

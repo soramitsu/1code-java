@@ -1,11 +1,16 @@
 package jp.co.soramitsu.jackson;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static jp.co.soramitsu.jackson.Token.COLON;
 import static jp.co.soramitsu.jackson.Token.FALSE;
+import static jp.co.soramitsu.jackson.Token.INTEGER_END;
+import static jp.co.soramitsu.jackson.Token.INTEGER_START;
 import static jp.co.soramitsu.jackson.Token.NULL;
 import static jp.co.soramitsu.jackson.Token.TRUE;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -34,25 +39,25 @@ public class OneCoder {
   public void writeJsonNode(JsonNode node) throws IOException {
     switch (node.getNodeType()) {
       case OBJECT:
-        writeJsonObject(node);
+        writeJsonObject((ObjectNode) node);
         break;
       case ARRAY:
-        writeJsonArray(node);
+        writeJsonArray((ArrayNode) node);
         break;
       case BINARY:
-        write(node.binaryValue());
+        writeString(node.binaryValue());
         break;
       case BOOLEAN:
         writeBoolean(node.asBoolean());
         break;
       case STRING:
-        write(node.asText());
+        writeString(node.asText());
         break;
       case NUMBER:
         writeJsonNumber(node);
         break;
       case NULL:
-        write(NULL);
+        writeNull();
         break;
 
       default:
@@ -65,28 +70,22 @@ public class OneCoder {
   }
 
 
-  public void writeJsonObject(JsonNode obj) throws IOException {
-    assert obj.isObject();
-
+  public void writeJsonObject(ObjectNode obj) throws IOException {
     write(Token.OBJECT_START);
 
     Map<String, JsonNode> sorted = new TreeMap<>();
-    obj.fields().forEachRemaining(f -> {
-      sorted.put(f.getKey(), f.getValue());
-    });
+    obj.fields().forEachRemaining(f -> sorted.put(f.getKey(), f.getValue()));
 
     for (Entry<String, JsonNode> field : sorted.entrySet()) {
       // stream can be used, but following functions throw checked exception
-      write(field.getKey()); // throws
+      writeString(field.getKey()); // throws
       writeJsonNode(field.getValue()); // throws
     }
 
     write(Token.OBJECT_END);
   }
 
-  public void writeJsonArray(JsonNode arr) throws IOException {
-    assert arr.isArray();
-
+  public void writeJsonArray(ArrayNode arr) throws IOException {
     write(Token.ARRAY_START);
 
     for (int i = 0, size = arr.size(); i < size; i++) {
@@ -101,56 +100,65 @@ public class OneCoder {
 
     switch (node.numberType()) {
       case INT:
-        write(node.intValue());
+        writeNumber(node.intValue());
         break;
       case LONG:
-        write(node.longValue());
+        writeNumber(node.longValue());
         break;
       case BIG_INTEGER:
-        write(node.bigIntegerValue());
+        writeNumber(node.bigIntegerValue());
         break;
       case FLOAT:
-        write(node.floatValue());
+        writeNumber(node.floatValue());
         break;
       case DOUBLE:
-        write(node.doubleValue());
+        writeNumber(node.doubleValue());
         break;
       case BIG_DECIMAL:
-        write(node.decimalValue());
+        writeNumber(node.decimalValue());
+        break;
+      default:
+        /*
+         no other cases, but default is required by codestyle
+         */
         break;
     }
 
   }
 
-  public void write(final Number number) throws IOException {
-    write(Token.INTEGER_START);
+  public void writeNumber(final Number number) throws IOException {
+    write(INTEGER_START);
     writer.write(String.valueOf(number));
-    write(Token.INTEGER_END);
+    write(INTEGER_END);
   }
 
-  public void write(Token token) throws IOException {
+  /* default */ void write(Token token) throws IOException {
     writer.write(token.getSymbol());
   }
 
-  public void write(final String s) throws IOException {
-    write(s.getBytes(charset));
+  public void writeString(final String s) throws IOException {
+    writeString(s.getBytes(charset));
   }
 
   // same as string
-  public void write(final char[] c) throws IOException {
+  public void writeString(final char[] c) throws IOException {
     byte[] bytes = charset.encode(CharBuffer.wrap(c)).array();
-    write(bytes);
+    writeString(bytes);
   }
 
   // same as string
-  public void write(final byte[] b) throws IOException {
+  public void writeString(final byte[] b) throws IOException {
     writer.write(String.valueOf(b.length));
-    write(Token.COLON);
+    write(COLON);
     writer.write(new String(b, charset));
   }
 
   public void writeBoolean(boolean b) throws IOException {
     write(b ? TRUE : FALSE);
+  }
+
+  public void writeNull() throws IOException {
+    write(NULL);
   }
 
   public void flush() throws IOException {
