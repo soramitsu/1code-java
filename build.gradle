@@ -36,7 +36,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.8'
+    gradleVersion = '4.10'
 }
 
 repositories {
@@ -44,7 +44,7 @@ repositories {
 }
 
 def jacksonVersion = '2.9.7'
-def lombokVersion = '1.18.2'
+def lombokVersion = '1.18.4'
 def spockVersion = '1.1-groovy-2.4'
 def jacksonDatatypeVersion = '2.9.7'
 

@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -74,7 +75,11 @@ public class OneCoder {
     write(Token.OBJECT_START);
 
     Map<String, JsonNode> sorted = new TreeMap<>();
-    obj.fields().forEachRemaining(f -> sorted.put(f.getKey(), f.getValue()));
+    val fields = obj.fields();
+    while (fields.hasNext()) {
+      val field = fields.next();
+      sorted.put(field.getKey(), field.getValue());
+    }
 
     for (Entry<String, JsonNode> field : sorted.entrySet()) {
       // stream can be used, but following functions throw checked exception
