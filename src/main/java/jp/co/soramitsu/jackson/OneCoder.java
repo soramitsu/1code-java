@@ -16,7 +16,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -76,7 +75,7 @@ public class OneCoder {
     write(Token.OBJECT_START);
 
     Map<String, JsonNode> sorted = new TreeMap<>();
-    Iterator<Entry<String, JsonNode>> fields = obj.fields();
+    val fields = obj.fields();
     while (fields.hasNext()) {
       val field = fields.next();
       sorted.put(field.getKey(), field.getValue());
