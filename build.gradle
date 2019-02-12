@@ -44,7 +44,7 @@ repositories {
 }
 
 def jacksonVersion = '2.9.7'
-def lombokVersion = '1.18.4'
+def lombokVersion = '1.18.6'
 def spockVersion = '1.1-groovy-2.4'
 def jacksonDatatypeVersion = '2.9.7'
 
