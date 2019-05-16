@@ -46,7 +46,7 @@ repositories {
 def jacksonVersion = '2.9.7'
 def lombokVersion = '1.18.8'
 def spockVersion = '1.1-groovy-2.4'
-def jacksonDatatypeVersion = '2.9.7'
+def jacksonDatatypeVersion = '2.9.8'
 
 dependencies {
     testCompile("org.spockframework:spock-core:${spockVersion}")
