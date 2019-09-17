@@ -43,7 +43,7 @@ repositories {
     mavenCentral()
 }
 
-def jacksonVersion = '2.9.9'
+def jacksonVersion = '2.10.0.pr3'
 def lombokVersion = '1.18.8'
 def spockVersion = '1.1-groovy-2.4'
 def jacksonDatatypeVersion = '2.9.9'
